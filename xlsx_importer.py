@@ -43,7 +43,7 @@ import pandas
 
 # Classes #
 class xlsxDataFrame:
-    def __init__(self, path=None):
+    def __init__(self, path=None, init=True):
         if path is None:
             self._path = None
         else:
@@ -54,9 +54,14 @@ class xlsxDataFrame:
 
         self.worksheets = dict()
         self._tables = dict()
+        if init:
+            self.load()
 
     def __getitem__(self, item):
-        return self.worksheets[item]
+        if isinstance(item, str):
+            return self.worksheets[item]
+        else:
+            return self.op_workbook.worksheets[item]
 
     def __setitem__(self, key, value):
         pass
@@ -78,15 +83,16 @@ class xlsxDataFrame:
 
     @property
     def tables(self):
-        pass
+        return self._tables
 
-
-    def load(self, in_path):
-        self.load_wb(in_path)
+    def load(self, in_path=None):
+        self.load_wb(in_path=in_path)
         self.load_ws()
+        self.load_tables()
 
-    def load_wb(self, in_path):
-        self.path = in_path
+    def load_wb(self, in_path=None):
+        if in_path is not None:
+            self.path = in_path
         self.op_workbook = openpyxl.load_workbook(self.path)
 
     def load_ws(self):
@@ -115,8 +121,11 @@ class xlsxDataFrame:
             tables[tbl.name] = table2dataframe(self.op_worksheets[name], tbl)
         return tables
 
-    def copy_tables(self):
+    def save(self):
+        pass
 
+    def copy_tables(self):
+        pass
 
 
 
@@ -183,7 +192,9 @@ def table2dataframe(op_worksheet, table):
 
 ########## Main ##########
 if __name__ == "__main__":
-    xfile = xlsxDataFrame(pathlib.Path.cwd())
-    sheet = xfile["EC Tasks"]
-    other = xfile.tables["EC Tasks"]["TasksList"]
-    other = xfile.tables["EC Tasks"]["Other"]
+    db_path = pathlib.Path('C:/Users/ChangLab/Google Drive/Documents/Career/2017 - 2020 Chang Lab/Database')
+    xfile = xlsxDataFrame(db_path.joinpath('SubjectNumbers.xlsx'))
+    sheet = xfile[0]
+    other = xfile.tables["Sheet1"]["SubjectTable"]
+
+    print('done')
