@@ -13,14 +13,11 @@ __email__ = ""
 __status__ = "Prototype"
 
 # Default Libraries #
-import shutil
 import pathlib
 
 # Downloaded Libraries #
 import openpyxl
 from openpyxl.utils import range_boundaries
-from openpyxl.utils.dataframe import dataframe_to_rows
-from openpyxl.worksheet.table import Table, TableStyleInfo
 import pandas
 # import xlrd       need this one for pandas
 
@@ -51,7 +48,7 @@ class xlsxFile:
         self.op_tables = dict()
 
         self.worksheets = dict()
-        self._tables = dict()
+        self.tables = dict()
 
         if init:
             self.load()
@@ -93,7 +90,7 @@ class xlsxFile:
             op_tables[name] = self.load_op_tables(name)
             tables[name] = self.load_pd_tables(name)
         self.op_tables = op_tables
-        self._tables = tables
+        self.tables = tables
 
     def load_op_tables(self, name):
         tables = dict()
@@ -129,7 +126,6 @@ def range2dataframe(op_worksheet, range_):
 if __name__ == "__main__":
     db_path = pathlib.Path('/Users/changlab/Dropbox (UCSF Department of Neurological Surgery)/ChangLab/General Patient Info/EC223/')
     xfile = xlsxFile(db_path.joinpath('TrialNotes_EC223.xlsm'))
-    sheet = xfile[0]
     other = xfile.tables["Tasks"]["PatientTasks"]
 
     print('done')
