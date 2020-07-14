@@ -1,27 +1,16 @@
-"""
-.py
-
-Last Edited:
-
-Lead Author[s]: Anthony Fong
-Contributor[s]:
-
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+""" xlsx_importer.py
 Description:
-
-
-Machine I/O
-Input:
-Output:
-
-User I/O
-Input:
-Output:
-
-
 """
-########################################################################################################################
-
-########## Libraries, Imports, & Setup ##########
+__author__ = "Anthony Fong"
+__copyright__ = "Copyright 2020, Anthony Fong"
+__credits__ = ["Anthony Fong"]
+__license__ = ""
+__version__ = "1.0.0"
+__maintainer__ = "Anthony Fong"
+__email__ = ""
+__status__ = "Prototype"
 
 # Default Libraries #
 import shutil
@@ -39,10 +28,19 @@ import pandas
 # Local Libraries #
 
 
-########## Definitions ##########
-
+# Definitions #
 # Classes #
-class xlsxDataFrame:
+class xlsxFile:
+    """A class for reading and writing excel files.
+
+    Args:
+        path (str or :obj:'Path'): Path of excel file.
+        init (bool, optional): If the object automatically populates itself.
+
+    Attributes:
+
+
+    """
     def __init__(self, path=None, init=True):
         if path is None:
             self._path = None
@@ -54,17 +52,9 @@ class xlsxDataFrame:
 
         self.worksheets = dict()
         self._tables = dict()
+
         if init:
             self.load()
-
-    def __getitem__(self, item):
-        if isinstance(item, str):
-            return self.worksheets[item]
-        else:
-            return self.op_workbook.worksheets[item]
-
-    def __setitem__(self, key, value):
-        pass
 
     @property
     def path(self):
@@ -80,10 +70,6 @@ class xlsxDataFrame:
     @property
     def sheet_names(self):
         return self.op_workbook.sheetnames
-
-    @property
-    def tables(self):
-        return self._tables
 
     def load(self, in_path=None):
         self.load_wb(in_path=in_path)
@@ -111,90 +97,40 @@ class xlsxDataFrame:
 
     def load_op_tables(self, name):
         tables = dict()
-        for tbl in self.op_worksheets[name]._tables:
-            tables[tbl.name] = tbl
+        for tbl_name, tbl_range in self.op_worksheets[name].tables.items():
+            tables[tbl_name] = tbl_range
         return tables
 
     def load_pd_tables(self, name):
         tables = dict()
-        for tbl in self.op_worksheets[name]._tables:
-            tables[tbl.name] = table2dataframe(self.op_worksheets[name], tbl)
+        for tbl_name, tbl_range in self.op_worksheets[name].tables.items():
+            tables[tbl_name] = range2dataframe(self.op_worksheets[name], tbl_range)
         return tables
 
-    def save(self):
-        pass
 
-    def copy_tables(self):
-        pass
+# Functions#
+def range2dataframe(op_worksheet, range_):
+    """Converts a range of an excel sheet into a Pandas dataframe.
 
+    Args:
+        op_worksheet (:obj:'Worksheet'): The worksheet which the range is located.
+        range_ (str): The range to convert into a dataframe. It must be in the excel standard for a range.
 
-
-
-
-
-
-
-class xlxsImporter:
-    def __init__(self, in_path=None, out_path=None):
-        if in_path is None:
-            self._path = None
-        else:
-            self.path = in_path
-        if out_path is None:
-            self._out_path = self.path
-        else:
-            self.out_path = out_path
-
-        self.workbook = None
-
-    @property
-    def path(self):
-        return self._path
-
-    @path.setter
-    def path(self, value):
-        if isinstance(value, pathlib.Path) or value is None:
-            self._path = value
-        else:
-            self._path = pathlib.Path(value)
-
-    @property
-    def out_path(self):
-        return self._out_path
-
-    @out_path.setter
-    def out_path(self, value):
-        if isinstance(value, pathlib.Path) or value is None:
-            self._out_path = value
-        else:
-            self._out_path = pathlib.Path(value)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-def table2dataframe(op_worksheet, table):
-    min_col, min_row, max_col, max_row = range_boundaries(table.ref)
+    Returns:
+        :obj: DataFrame: The Pandas dataframe of the excel range.
+    """
+    min_col, min_row, max_col, max_row = range_boundaries(range_)
     data = op_worksheet.iter_rows(min_row=min_row, min_col=min_col, max_row=max_row, max_col=max_col, values_only=True)
     headers = next(data)
     return pandas.DataFrame(data, columns=headers)
 
 
-########## Main ##########
+# Main #
 if __name__ == "__main__":
-    db_path = pathlib.Path('C:/Users/ChangLab/Google Drive/Documents/Career/2017 - 2020 Chang Lab/Database')
-    xfile = xlsxDataFrame(db_path.joinpath('SubjectNumbers.xlsx'))
+    db_path = pathlib.Path('/Users/changlab/Dropbox (UCSF Department of Neurological Surgery)/ChangLab/General Patient Info/EC223/')
+    xfile = xlsxFile(db_path.joinpath('TrialNotes_EC223.xlsm'))
     sheet = xfile[0]
-    other = xfile.tables["Sheet1"]["SubjectTable"]
+    other = xfile.tables["Tasks"]["PatientTasks"]
 
     print('done')
+
